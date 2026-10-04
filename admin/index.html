@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISAstaurant — админка</title>
+
+    <!-- Админку не должны индексировать поисковики -->
+    <meta name="robots" content="noindex, nofollow">
+
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+    <!-- ==========================================================
+         Экран входа
+         ========================================================== -->
+    <div class="screen" id="loginScreen" hidden>
+        <form class="login" id="loginForm" autocomplete="on">
+            <h1 class="login__title">ISAstaurant</h1>
+            <p class="login__subtitle">Панель управления</p>
+
+            <label class="field">
+                <span class="field__label">Логин</span>
+                <input class="input" type="text" id="loginUser"
+                       name="username" autocomplete="username" required autofocus>
+            </label>
+
+            <label class="field">
+                <span class="field__label">Пароль</span>
+                <input class="input" type="password" id="loginPassword"
+                       name="password" autocomplete="current-password" required>
+            </label>
+
+            <p class="login__error" id="loginError" hidden></p>
+
+            <button class="btn btn--primary btn--full" type="submit" id="loginSubmit">Войти</button>
+        </form>
+    </div>
+
+    <!-- ==========================================================
+         Панель
+         ========================================================== -->
+    <div class="app" id="app" hidden>
+
+        <header class="topbar">
+            <div class="topbar__brand">
+                ISAstaurant<span class="topbar__tag">админка</span>
+            </div>
+
+            <nav class="tabs" id="tabs">
+                <button class="tab" type="button" data-view="menu">Меню</button>
+                <button class="tab" type="button" data-view="branches">Филиалы</button>
+                <button class="tab" type="button" data-view="settings">Контакты</button>
+            </nav>
+
+            <div class="topbar__user">
+                <span class="topbar__name" id="currentUser"></span>
+                <button class="btn btn--ghost" type="button" id="logoutBtn">Выйти</button>
+            </div>
+        </header>
+
+        <main class="view" id="view"></main>
+    </div>
+
+    <!-- Диалог создания и редактирования -->
+    <dialog class="modal" id="modal">
+        <form class="modal__form" id="modalForm" method="dialog">
+            <div class="modal__head">
+                <h2 class="modal__title" id="modalTitle"></h2>
+                <button class="modal__close" type="button" id="modalClose" aria-label="Закрыть">×</button>
+            </div>
+
+            <div class="modal__body" id="modalBody"></div>
+
+            <div class="modal__foot">
+                <button class="btn btn--ghost" type="button" id="modalCancel">Отмена</button>
+                <button class="btn btn--primary" type="submit" id="modalSubmit">Сохранить</button>
+            </div>
+        </form>
+    </dialog>
+
+    <!-- ==========================================================
+         Кадрирование фото
+
+         Отдельный диалог поверх формы: на сайте фото блюда всегда
+         в квадратной рамке, и решать, что в неё попадёт, должен
+         человек, а не обрезка по центру.
+         ========================================================== -->
+    <dialog class="modal modal--crop" id="cropper">
+        <div class="modal__head">
+            <h2 class="modal__title">Кадр фотографии</h2>
+            <button class="modal__close" type="button" id="cropClose" aria-label="Закрыть">×</button>
+        </div>
+
+        <div class="modal__body">
+            <div class="crop">
+                <div class="crop__frame" id="cropFrame">
+                    <img class="crop__image" id="cropImage" alt="" draggable="false">
+                </div>
+                <p class="crop__hint">Перетащите фото, колесом или ползунком выберите масштаб</p>
+
+                <label class="crop__zoom">
+                    <span class="field__label">Масштаб</span>
+                    <input type="range" id="cropZoom" min="1" max="4" step="0.01" value="1">
+                </label>
+            </div>
+        </div>
+
+        <div class="modal__foot">
+            <button class="btn btn--ghost" type="button" id="cropCancel">Отмена</button>
+            <button class="btn btn--primary" type="button" id="cropApply">Готово</button>
+        </div>
+    </dialog>
+
+    <div class="toast" id="toast" hidden></div>
+
+    <script src="api.js"></script>
+    <script src="ui.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISAstaurant</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Фоновое изображение + затемняющий слой -->
+    <div class="background" aria-hidden="true">
+        <div class="background__image"></div>
+        <div class="background__overlay"></div>
+    </div>
+
+    <main class="page">
+        <section class="panel" id="startPanel" aria-labelledby="brandTitle">
+
+            <!-- Переключатели: язык и тема (над названием) -->
+            <div class="panel__top">
+                <div class="panel__controls">
+                    <button
+                        type="button"
+                        class="toggle"
+                        id="langToggle"
+                        aria-label="Сменить язык"
+                        data-i18n-aria="langToggleLabel">
+                        <span class="toggle__value" id="langToggleValue">RU</span>
+                    </button>
+
+                    <button
+                        type="button"
+                        class="toggle"
+                        id="themeToggle"
+                        aria-label="Сменить тему"
+                        data-i18n-aria="themeToggleLabel"
+                        aria-pressed="false">
+                        <span class="toggle__icon toggle__icon--sun" aria-hidden="true">☀</span>
+                        <span class="toggle__icon toggle__icon--moon" aria-hidden="true">☾</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Название ресторана -->
+            <header class="panel__header">
+                <h1 class="brand" id="brandTitle">ISAstaurant</h1>
+                <p class="brand__tagline" data-i18n="tagline">Вкус, который запоминается</p>
+            </header>
+
+            <!-- Выбор филиала -->
+            <div class="field">
+                <label class="field__label" for="branchSelect" data-i18n="branchLabel">Выберите филиал</label>
+
+                <div class="select" id="branchSelect">
+                    <button
+                        type="button"
+                        class="select__trigger"
+                        id="branchTrigger"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                        aria-controls="branchList">
+                        <span class="select__value" id="branchValue" data-i18n="branchPlaceholder">Не выбрано</span>
+                        <span class="select__arrow" aria-hidden="true"></span>
+                    </button>
+
+                    <ul class="select__list" id="branchList" role="listbox" tabindex="-1"
+                        aria-labelledby="branchTrigger"></ul>
+                </div>
+            </div>
+
+            <!-- Кнопка -->
+            <button type="button" class="btn-primary" id="continueBtn" data-i18n="continue">
+                Продолжить
+            </button>
+
+        </section>
+    </main>
+
+    <!-- branches.js — общий справочник филиалов и контактов, грузится первым -->
+    <script src="branches.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

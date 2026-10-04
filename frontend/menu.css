@@ -1,0 +1,2178 @@
+/* ============================================================
+   ISAstaurant — страница меню
+   Переменные тем и @font-face берутся из style.css
+   ============================================================ */
+
+/* ---------- База ---------- */
+.menu-body {
+    background-color: var(--bg);
+    color: var(--text);
+    /* Стартовая страница центрирует контент — здесь нужен обычный поток */
+    display: block;
+    padding-bottom: 64px;
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* ============================================================
+   Шапка
+   ============================================================ */
+.header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--header-bg);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    border-bottom: 1px solid transparent;
+    transition: border-color .35s ease, box-shadow .35s ease, background-color .45s ease;
+
+    animation: headerDrop .7s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+/* Тень появляется только когда страница прокручена */
+.header.is-scrolled {
+    border-bottom-color: var(--surface-border);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, .18);
+}
+
+@keyframes headerDrop {
+    from { opacity: 0; transform: translateY(-100%); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.header__inner {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+/* ---------- Логотип ---------- */
+.logo {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    text-decoration: none;
+    transition: opacity .3s ease;
+}
+
+.logo:hover { opacity: .78; }
+
+.logo:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
+    border-radius: 8px;
+}
+
+.logo__name {
+    font-family: 'ISAstaurant', Georgia, serif;
+    font-size: 1.6rem;
+    line-height: 1;
+    background: linear-gradient(105deg, var(--text) 0%, var(--accent) 65%, var(--accent-soft) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* ---------- Переключатель филиала ---------- */
+/* Имя .brand занято в style.css (название ресторана на стартовой странице),
+   поэтому здесь свой класс — иначе оттуда наследуется serif, огромный
+   font-size и background-clip: text, который ломает отрисовку текста */
+.header__brand {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    min-width: 0;
+}
+
+.branch { position: relative; }
+
+.branch__trigger {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    max-width: 100%;
+    padding: 2px 0;
+    border: none;
+    background: none;
+    color: var(--text-muted);
+    font-family: inherit;
+    font-size: .66rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: color .3s ease;
+}
+
+.branch__trigger:hover { color: var(--accent); }
+
+.branch__trigger:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 6px;
+}
+
+.branch__value {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.branch__arrow {
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+    transition: transform .3s cubic-bezier(.22, 1, .36, 1);
+}
+
+.branch.is-open .branch__arrow { transform: rotate(180deg); }
+
+.branch__list {
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 0;
+    z-index: 120;
+    min-width: 260px;
+    padding: 6px;
+    list-style: none;
+    border-radius: 16px;
+    /* Непрозрачный фон: список ложится поверх меню */
+    background: var(--dropdown-bg);
+    border: 1px solid var(--panel-border);
+    box-shadow: 0 22px 55px rgba(0, 0, 0, .45);
+
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transform-origin: top left;
+    transition: opacity .25s ease, transform .3s cubic-bezier(.22, 1, .36, 1), visibility .25s;
+}
+
+.branch.is-open .branch__list {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.branch__option {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 11px 12px;
+    border-radius: 12px;
+    font-size: .84rem;
+    line-height: 1.35;
+    color: var(--text);
+    cursor: pointer;
+    transition: background-color .2s ease, color .2s ease;
+}
+
+.branch__option:hover,
+.branch__option.is-active {
+    background: var(--accent-tint);
+    color: var(--accent);
+}
+
+/* Точка у выбранного филиала */
+.branch__option::before {
+    content: '';
+    flex-shrink: 0;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    border: 2px solid var(--control-border);
+    transition: border-color .2s ease, background-color .2s ease;
+}
+
+.branch__option[aria-selected="true"]::before {
+    border-color: var(--accent);
+    background: var(--accent);
+}
+
+.branch__option[aria-selected="true"] { color: var(--accent); font-weight: 600; }
+
+/* ---------- Кнопки-иконки ---------- */
+.header__actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.icon-btn {
+    position: relative;
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    border: 1px solid var(--control-border);
+    background: var(--control-bg);
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    text-decoration: none;
+    cursor: pointer;
+    overflow: hidden;
+    transition: transform .3s cubic-bezier(.22, 1, .36, 1),
+                background-color .3s ease,
+                border-color .3s ease,
+                color .3s ease;
+}
+
+.icon-btn svg {
+    width: 19px;
+    height: 19px;
+    display: block;
+}
+
+.icon-btn:hover {
+    background: var(--control-bg-hover);
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateY(-2px);
+}
+
+.icon-btn:active { transform: scale(.92); }
+
+.icon-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+}
+
+/* ---------- Корзина ---------- */
+.icon-btn--cart { overflow: visible; }
+
+.cart-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 5px;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+    background: var(--accent);
+    color: var(--btn-text);
+    font-size: .68rem;
+    font-weight: 700;
+    line-height: 1;
+
+    opacity: 0;
+    transform: scale(.4);
+    transition: opacity .28s ease, transform .35s cubic-bezier(.34, 1.56, .64, 1);
+}
+
+.cart-badge.is-visible { opacity: 1; transform: scale(1); }
+
+/* Толчок при добавлении товара */
+.icon-btn--cart.is-bumped { animation: cartBump .45s cubic-bezier(.34, 1.56, .64, 1); }
+
+@keyframes cartBump {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.18); }
+    100% { transform: scale(1); }
+}
+
+/* WhatsApp — зелёный на наведении, как принято у мессенджера */
+.icon-btn--wa:hover {
+    border-color: #25d366;
+    color: #25d366;
+}
+
+/* ============================================================
+   Контакты в подвале
+   ============================================================ */
+.site-foot {
+    margin-top: 64px;
+    padding: 34px 0 8px;
+    border-top: 1px solid var(--surface-border);
+}
+
+.site-foot__inner {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.site-foot__title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    letter-spacing: -.01em;
+    margin-bottom: 6px;
+}
+
+.site-foot__text {
+    font-size: .85rem;
+    color: var(--text-muted);
+}
+
+.site-foot__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.contact {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 18px 13px 14px;
+    border-radius: 16px;
+    border: 1px solid var(--surface-border);
+    background: var(--surface);
+    color: var(--text);
+    text-decoration: none;
+    transition: transform .32s cubic-bezier(.22, 1, .36, 1),
+                border-color .32s ease, box-shadow .32s ease;
+}
+
+.contact:hover {
+    border-color: var(--accent);
+    transform: translateY(-3px);
+    box-shadow: 0 14px 32px rgba(0, 0, 0, .22);
+}
+
+.contact:active { transform: translateY(-1px); }
+
+.contact:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+}
+
+.contact__icon {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--accent-tint);
+    color: var(--accent);
+    transition: background-color .32s ease, color .32s ease;
+}
+
+.contact__icon svg { width: 19px; height: 19px; display: block; }
+
+/* У WhatsApp свой фирменный цвет */
+.contact--wa .contact__icon {
+    background: rgba(37, 211, 102, .14);
+    color: #25d366;
+}
+
+.contact--wa:hover { border-color: #25d366; }
+
+.contact__body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.contact__label {
+    font-size: .68rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.contact__value {
+    font-size: .98rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+/* ============================================================
+   Секции
+   ============================================================ */
+.menu-page {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+.section { padding-top: 44px; }
+
+.section__title {
+    font-size: clamp(1.7rem, 4.4vw, 2.5rem);
+    font-weight: 800;
+    letter-spacing: -.02em;
+    margin-bottom: 22px;
+}
+
+/* Заголовок категории с оранжевой чертой */
+.section__title--category {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.section__title--category::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+    opacity: .5;
+}
+
+/* ============================================================
+   Чипы категорий
+   ============================================================ */
+.chips {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding: 4px 4px 12px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+}
+
+.chips::-webkit-scrollbar { display: none; }
+
+.chip {
+    flex: 0 0 auto;
+    min-width: 108px;
+    padding: 16px 18px 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    border-radius: 20px;
+    border: 1px solid var(--surface-border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: inherit;
+    font-size: .86rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: transform .32s cubic-bezier(.22, 1, .36, 1),
+                background-color .32s ease,
+                border-color .32s ease,
+                color .32s ease,
+                box-shadow .32s ease;
+
+    /* Каскадное появление; --i задаётся в JS */
+    opacity: 0;
+    transform: translateY(14px);
+    animation: chipIn .55s cubic-bezier(.22, 1, .36, 1) forwards;
+    animation-delay: calc(var(--i, 0) * 60ms + 150ms);
+}
+
+@keyframes chipIn {
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.chip__emoji {
+    font-size: 1.85rem;
+    line-height: 1;
+    transition: transform .35s cubic-bezier(.34, 1.56, .64, 1);
+}
+
+.chip:hover {
+    border-color: var(--accent);
+    transform: translateY(-3px);
+}
+
+.chip:hover .chip__emoji { transform: scale(1.14) rotate(-6deg); }
+
+.chip:active { transform: translateY(-1px) scale(.97); }
+
+.chip:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+}
+
+.chip[aria-pressed="true"] {
+    background: linear-gradient(135deg, var(--accent), var(--accent-soft));
+    border-color: transparent;
+    color: var(--btn-text);
+    box-shadow: 0 10px 26px var(--accent-glow);
+}
+
+/* ============================================================
+   Сетка блюд
+   ============================================================ */
+.dish-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(228px, 1fr));
+    gap: 26px 22px;
+}
+
+.dish {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    cursor: default;
+
+    /* Появление при скролле — класс is-visible ставит IntersectionObserver */
+    opacity: 0;
+    transform: translateY(22px);
+    transition: opacity .6s cubic-bezier(.22, 1, .36, 1),
+                transform .6s cubic-bezier(.22, 1, .36, 1);
+    transition-delay: calc(var(--i, 0) * 55ms);
+}
+
+.dish.is-visible { opacity: 1; transform: translateY(0); }
+
+/* ---------- Место под фото ---------- */
+.dish__media {
+    position: relative;
+    /* Фото блюд квадратные — так тарелка помещается целиком, без обрезки краёв */
+    aspect-ratio: 1 / 1;
+    display: grid;
+    place-items: center;
+    border-radius: 20px;
+    border: 1px solid var(--surface-border);
+    background: var(--media-bg);
+    overflow: hidden;
+    transition: transform .4s cubic-bezier(.22, 1, .36, 1),
+                box-shadow .4s ease,
+                border-color .4s ease;
+}
+
+/* Мягкий оранжевый блик — виден только под emoji-плейсхолдером */
+.dish__media::before {
+    content: '';
+    position: absolute;
+    top: -40%;
+    right: -30%;
+    width: 75%;
+    height: 110%;
+    background: radial-gradient(circle, var(--accent-glow), transparent 65%);
+    opacity: .55;
+    transition: opacity .45s ease, transform .6s ease;
+}
+
+/* ---------- Фотография блюда ---------- */
+.dish__photo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform .55s cubic-bezier(.22, 1, .36, 1);
+}
+
+.dish:hover .dish__photo { transform: scale(1.06); }
+
+.dish__emoji {
+    position: relative;
+    font-size: 3.1rem;
+    line-height: 1;
+    filter: drop-shadow(0 6px 14px rgba(0, 0, 0, .28));
+    transition: transform .45s cubic-bezier(.34, 1.56, .64, 1);
+}
+
+.dish:hover .dish__media {
+    transform: translateY(-6px);
+    border-color: var(--accent);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, .28);
+}
+
+.dish:hover .dish__media::before { opacity: .9; transform: scale(1.15); }
+.dish:hover .dish__emoji { transform: scale(1.12) rotate(-4deg); }
+
+/* ---------- Кнопка «добавить» ---------- */
+.dish__add {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    width: 38px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    border: none;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent-soft));
+    color: var(--btn-text);
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: 0 8px 20px var(--accent-glow);
+
+    opacity: 0;
+    transform: translateY(8px) scale(.85);
+    transition: opacity .3s ease, transform .35s cubic-bezier(.34, 1.56, .64, 1);
+}
+
+.dish:hover .dish__add,
+.dish__add:focus-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.dish__add:hover { transform: translateY(0) scale(1.1); }
+.dish__add:active { transform: scale(.9); }
+
+.dish__add:focus-visible {
+    outline: 2px solid var(--text);
+    outline-offset: 2px;
+}
+
+/* На тач-устройствах hover не работает — показываем кнопку всегда */
+@media (hover: none) {
+    .dish__add { opacity: 1; transform: none; }
+}
+
+/* ---------- Текст карточки ---------- */
+.dish__body { padding: 14px 4px 0; }
+
+.dish__name {
+    font-size: .98rem;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 6px;
+    transition: color .3s ease;
+}
+
+.dish:hover .dish__name { color: var(--accent); }
+
+.dish__price {
+    font-size: .95rem;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================
+   Пустое состояние
+   ============================================================ */
+.empty {
+    padding: 70px 0;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 1rem;
+}
+
+/* ============================================================
+   Тост
+   ============================================================ */
+.toast {
+    position: fixed;
+    left: 50%;
+    bottom: 28px;
+    /* Выше модалки (300) и корзины (400) — иначе уведомление скроется за ними */
+    z-index: 500;
+    padding: 14px 24px;
+    border-radius: 14px;
+    border: 1px solid var(--surface-border);
+    background: var(--surface);
+    color: var(--text);
+    font-size: .9rem;
+    font-weight: 600;
+    box-shadow: 0 18px 45px rgba(0, 0, 0, .35);
+
+    opacity: 0;
+    visibility: hidden;
+    transform: translate(-50%, 18px);
+    transition: opacity .32s ease, transform .38s cubic-bezier(.22, 1, .36, 1), visibility .32s;
+}
+
+.toast.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, 0);
+}
+
+/* ============================================================
+   Модальное окно
+   ============================================================ */
+.modal {
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    overflow-y: auto;
+    padding: 20px 16px;
+
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .35s ease, visibility .35s;
+}
+
+.modal.is-open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal__overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .5);
+    transition: background-color .35s ease;
+    cursor: pointer;
+}
+
+.modal__content {
+    position: relative;
+    width: 100%;
+    max-width: 540px;
+    border-radius: 26px;
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    box-shadow: 0 50px 120px rgba(0, 0, 0, .4);
+    backdrop-filter: blur(22px) saturate(130%);
+    -webkit-backdrop-filter: blur(22px) saturate(130%);
+    overflow: hidden;
+
+    transform: translateY(40px) scale(.95);
+    transition: transform .38s cubic-bezier(.22, 1, .36, 1);
+}
+
+.modal.is-open .modal__content {
+    transform: translateY(0) scale(1);
+}
+
+.modal__close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 10;
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--control-border);
+    border-radius: 50%;
+    background: var(--control-bg);
+    color: var(--text);
+    cursor: pointer;
+    transition: transform .3s ease, background-color .3s ease, border-color .3s ease;
+}
+
+.modal__close:hover {
+    background: var(--control-bg-hover);
+    border-color: var(--accent);
+    transform: rotate(90deg);
+}
+
+.modal__close svg {
+    width: 18px;
+    height: 18px;
+    display: block;
+}
+
+.modal__media {
+    width: 100%;
+    aspect-ratio: 1;
+    background: var(--media-bg);
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border-bottom: 1px solid var(--surface-border);
+}
+
+.modal__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.modal__media span {
+    font-size: 4rem;
+    line-height: 1;
+}
+
+.modal__body {
+    padding: 32px 28px;
+}
+
+.modal__title {
+    font-size: 1.9rem;
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: -.01em;
+    margin-bottom: 8px;
+}
+
+.modal__weight {
+    font-size: .9rem;
+    color: var(--text-muted);
+    margin-bottom: 22px;
+    font-weight: 600;
+}
+
+.modal__section {
+    margin-bottom: 24px;
+}
+
+.modal__section-title {
+    font-size: .78rem;
+    font-weight: 700;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+}
+
+.modal__description,
+.modal__ingredients {
+    font-size: .95rem;
+    line-height: 1.6;
+    color: var(--text);
+}
+
+.modal__footer {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding-top: 20px;
+    border-top: 1px solid var(--surface-border);
+}
+
+.modal__price {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--accent);
+}
+
+.modal__footer .btn-primary {
+    flex: 1;
+    padding: 15px 20px;
+    font-size: .9rem;
+}
+
+/* ============================================================
+   Корзина — боковая панель
+   ============================================================ */
+.cart {
+    position: fixed;
+    inset: 0;
+    /* Выше модалки блюда (300), чтобы корзина всегда была сверху */
+    z-index: 400;
+    visibility: hidden;
+    transition: visibility .5s;
+}
+
+.cart.is-open { visibility: visible; }
+
+.cart__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, .55);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    cursor: pointer;
+
+    opacity: 0;
+    transition: opacity .45s ease;
+}
+
+.cart.is-open .cart__overlay { opacity: 1; }
+
+.cart__drawer {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(430px, 100%);
+    display: flex;
+    flex-direction: column;
+    /* Непрозрачный фон: сквозь панель не должно просвечивать меню */
+    background: var(--dropdown-bg);
+    border-left: 1px solid var(--panel-border);
+    box-shadow: -30px 0 90px rgba(0, 0, 0, .45);
+
+    transform: translateX(100%);
+    transition: transform .5s cubic-bezier(.22, 1, .36, 1);
+}
+
+.cart.is-open .cart__drawer { transform: translateX(0); }
+
+/* ---------- Шапка панели ---------- */
+.cart__head {
+    flex-shrink: 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 24px 24px 18px;
+    border-bottom: 1px solid var(--surface-border);
+}
+
+.cart__title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -.01em;
+    line-height: 1.1;
+}
+
+.cart__subcount {
+    margin-top: 5px;
+    font-size: .82rem;
+    color: var(--text-muted);
+}
+
+.cart__close {
+    flex-shrink: 0;
+    width: 38px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--control-border);
+    border-radius: 50%;
+    background: var(--control-bg);
+    color: var(--text);
+    cursor: pointer;
+    transition: transform .3s ease, background-color .3s ease, border-color .3s ease, color .3s ease;
+}
+
+.cart__close:hover {
+    background: var(--control-bg-hover);
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: rotate(90deg);
+}
+
+.cart__close:active { transform: rotate(90deg) scale(.92); }
+
+.cart__close:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+}
+
+.cart__close svg { width: 17px; height: 17px; display: block; }
+
+/* ---------- Прокручиваемый список ---------- */
+.cart__scroll {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 18px 24px;
+}
+
+.cart__list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* ---------- Позиция в корзине ---------- */
+.cart-item {
+    display: flex;
+    gap: 14px;
+    padding: 12px;
+    border-radius: 18px;
+    border: 1px solid var(--surface-border);
+    background: var(--control-bg);
+    transition: border-color .3s ease, background-color .3s ease, box-shadow .3s ease;
+
+    /* Каскадное появление; --i задаётся в JS */
+    opacity: 0;
+    transform: translateX(24px);
+    animation: cartItemIn .45s cubic-bezier(.22, 1, .36, 1) forwards;
+    animation-delay: calc(var(--i, 0) * 55ms);
+}
+
+@keyframes cartItemIn {
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.cart-item:hover {
+    border-color: var(--accent);
+    background: var(--control-bg-hover);
+}
+
+/* Схлопывание при удалении */
+.cart-item.is-removing {
+    animation: cartItemOut .28s ease forwards;
+    pointer-events: none;
+}
+
+@keyframes cartItemOut {
+    to { opacity: 0; transform: translateX(40px); }
+}
+
+.cart-item__media {
+    flex-shrink: 0;
+    width: 66px;
+    height: 66px;
+    border-radius: 14px;
+    background: var(--media-bg);
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+}
+
+.cart-item__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform .45s cubic-bezier(.22, 1, .36, 1);
+}
+
+.cart-item:hover .cart-item__media img { transform: scale(1.08); }
+
+.cart-item__media span { font-size: 1.9rem; line-height: 1; }
+
+.cart-item__body {
+    flex: 1;
+    min-width: 0;      /* иначе длинное название растянет строку */
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.cart-item__top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.cart-item__name {
+    font-size: .93rem;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.cart-item__unit {
+    font-size: .76rem;
+    color: var(--text-muted);
+}
+
+.cart-item__bottom {
+    margin-top: auto;
+    padding-top: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.cart-item__sum {
+    font-size: .95rem;
+    font-weight: 800;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    transition: transform .3s cubic-bezier(.34, 1.56, .64, 1);
+}
+
+/* Толчок суммы при изменении количества */
+.cart-item__sum.is-bumped { animation: sumBump .4s cubic-bezier(.34, 1.56, .64, 1); }
+
+@keyframes sumBump {
+    0%   { transform: scale(1); }
+    45%  { transform: scale(1.16); }
+    100% { transform: scale(1); }
+}
+
+/* ---------- Кнопка удаления ---------- */
+.cart-item__remove {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    display: grid;
+    place-items: center;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: background-color .25s ease, color .25s ease, transform .25s ease;
+}
+
+.cart-item__remove:hover {
+    background: var(--accent-tint);
+    color: var(--accent);
+    transform: scale(1.12);
+}
+
+.cart-item__remove:active { transform: scale(.9); }
+
+.cart-item__remove:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+.cart-item__remove svg { width: 15px; height: 15px; display: block; }
+
+/* ---------- Счётчик количества ---------- */
+.qty {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 3px;
+    border-radius: 999px;
+    border: 1px solid var(--control-border);
+    background: var(--dropdown-bg);
+}
+
+.qty__btn {
+    width: 27px;
+    height: 27px;
+    display: grid;
+    place-items: center;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color .25s ease, color .25s ease, transform .25s ease;
+}
+
+.qty__btn:hover {
+    background: var(--accent);
+    color: var(--btn-text);
+    transform: scale(1.1);
+}
+
+.qty__btn:active { transform: scale(.88); }
+
+.qty__btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+.qty__value {
+    min-width: 24px;
+    text-align: center;
+    font-size: .88rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Пустая корзина ---------- */
+.cart__empty {
+    padding: 60px 20px;
+    text-align: center;
+    animation: fadeIn .5s ease both;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.cart__empty-icon {
+    display: block;
+    font-size: 3.2rem;
+    line-height: 1;
+    margin-bottom: 18px;
+    opacity: .55;
+}
+
+.cart__empty-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.cart__empty-hint {
+    font-size: .86rem;
+    color: var(--text-muted);
+}
+
+/* ---------- Низ панели: оплата и итоги ---------- */
+.cart__foot {
+    flex-shrink: 0;
+    padding: 20px 24px 24px;
+    border-top: 1px solid var(--surface-border);
+    background: var(--dropdown-bg);
+}
+
+.cart__section-title {
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+}
+
+/* ---------- Форма заказа внутри прокрутки ---------- */
+.cart__form {
+    margin-top: 22px;
+    padding-top: 20px;
+    border-top: 1px solid var(--surface-border);
+}
+
+/* ---------- Доставка или самовывоз ---------- */
+.mode {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.mode__option {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 12px 13px;
+    border-radius: 15px;
+    border: 1.5px solid var(--surface-border);
+    background: var(--control-bg);
+    color: var(--text);
+    font-family: inherit;
+    cursor: pointer;
+    overflow: hidden;
+    transition: border-color .3s ease, background-color .3s ease,
+                transform .3s cubic-bezier(.22, 1, .36, 1), box-shadow .3s ease;
+}
+
+.mode__option:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+}
+
+.mode__option:active { transform: translateY(0) scale(.98); }
+
+.mode__option:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+.mode__option[aria-checked="true"] {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+    box-shadow: 0 8px 22px var(--accent-glow);
+}
+
+.mode__emoji { font-size: 1.2rem; line-height: 1; flex-shrink: 0; }
+
+.mode__name {
+    font-size: .85rem;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mode__mark {
+    position: absolute;
+    top: 6px;
+    right: 7px;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: var(--accent);
+
+    opacity: 0;
+    transform: scale(.3);
+    transition: opacity .3s ease, transform .35s cubic-bezier(.34, 1.56, .64, 1);
+}
+
+.mode__mark::after {
+    content: '';
+    position: absolute;
+    top: 3.5px;
+    left: 5px;
+    width: 4px;
+    height: 7px;
+    border: solid var(--btn-text);
+    border-width: 0 1.8px 1.8px 0;
+    transform: rotate(45deg);
+}
+
+.mode__option[aria-checked="true"] .mode__mark { opacity: 1; transform: scale(1); }
+
+/* ---------- Куда приезжать за заказом ---------- */
+.pickup {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+    padding: 13px 15px;
+    border-radius: 15px;
+    border: 1.5px solid var(--accent);
+    background: var(--accent-tint);
+    animation: flatIn .35s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+/* display выше сломал бы атрибут hidden — возвращаем ему силу */
+.pickup[hidden] { display: none; }
+
+.pickup__icon {
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--btn-text);
+}
+
+.pickup__icon svg { width: 17px; height: 17px; display: block; }
+
+.pickup__body { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+
+.pickup__label {
+    font-size: .68rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.pickup__branch {
+    font-size: .9rem;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+/* ---------- Тип дома ---------- */
+.housing {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.housing__option {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 12px 13px;
+    border-radius: 15px;
+    border: 1.5px solid var(--surface-border);
+    background: var(--control-bg);
+    color: var(--text);
+    font-family: inherit;
+    cursor: pointer;
+    overflow: hidden;
+    transition: border-color .3s ease, background-color .3s ease,
+                transform .3s cubic-bezier(.22, 1, .36, 1), box-shadow .3s ease;
+}
+
+.housing__option:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+}
+
+.housing__option:active { transform: translateY(0) scale(.98); }
+
+.housing__option:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+.housing__option[aria-checked="true"] {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+    box-shadow: 0 8px 22px var(--accent-glow);
+}
+
+.housing__emoji {
+    font-size: 1.2rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.housing__name {
+    font-size: .85rem;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.housing__mark {
+    position: absolute;
+    top: 6px;
+    right: 7px;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: var(--accent);
+
+    opacity: 0;
+    transform: scale(.3);
+    transition: opacity .3s ease, transform .35s cubic-bezier(.34, 1.56, .64, 1);
+}
+
+.housing__mark::after {
+    content: '';
+    position: absolute;
+    top: 3.5px;
+    left: 5px;
+    width: 4px;
+    height: 7px;
+    border: solid var(--btn-text);
+    border-width: 0 1.8px 1.8px 0;
+    transform: rotate(45deg);
+}
+
+.housing__option[aria-checked="true"] .housing__mark { opacity: 1; transform: scale(1); }
+
+/* ---------- Квартира и подъезд ---------- */
+.flat {
+    margin-bottom: 18px;
+    animation: flatIn .35s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+/* display у .flat не задаём — иначе атрибут hidden перестанет работать */
+@keyframes flatIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.flat__row {
+    display: grid;
+    /* Квартира важнее подъезда — отдаём ей больше места */
+    grid-template-columns: 1.4fr 1fr;
+    gap: 10px;
+}
+
+.flat__cell {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    cursor: text;
+}
+
+.flat__label {
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.flat__input {
+    width: 100%;
+    padding: 13px 14px;
+    border-radius: 13px;
+    border: 1.5px solid var(--surface-border);
+    background: var(--control-bg);
+    color: var(--text);
+    font-family: inherit;
+    font-size: .95rem;
+    font-weight: 600;
+    outline: none;
+    transition: border-color .3s ease, background-color .3s ease, box-shadow .3s ease;
+}
+
+.flat__input::placeholder {
+    color: var(--text-muted);
+    font-weight: 500;
+    opacity: .7;
+}
+
+.flat__input:hover { border-color: var(--control-border); }
+
+.flat__input:focus {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+    box-shadow: 0 0 0 4px var(--accent-glow);
+}
+
+.flat.is-invalid #flatInput {
+    border-color: var(--danger);
+    background: var(--danger-tint);
+}
+
+.flat.is-shake { animation: phoneShake .42s ease; }
+
+.flat__error {
+    margin-top: 8px;
+    font-size: .76rem;
+    font-weight: 600;
+    color: var(--danger);
+    animation: fadeIn .3s ease both;
+}
+
+.flat__note {
+    margin-top: 8px;
+    font-size: .75rem;
+    color: var(--text-muted);
+}
+
+/* ---------- Адрес доставки ---------- */
+.address {
+    position: relative;
+}
+
+.address__row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 14px;
+    border-radius: 14px;
+    border: 1.5px solid var(--surface-border);
+    background: var(--control-bg);
+    transition: border-color .3s ease, background-color .3s ease, box-shadow .3s ease;
+}
+
+.address__row:hover { border-color: var(--control-border); }
+
+.address:focus-within .address__row {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+    box-shadow: 0 0 0 4px var(--accent-glow);
+}
+
+.address__pin {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    color: var(--text-muted);
+    transition: color .3s ease;
+}
+
+.address:focus-within .address__pin { color: var(--accent); }
+
+.address__input {
+    flex: 1;
+    min-width: 0;
+    padding: 14px 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: var(--text);
+    font-family: inherit;
+    font-size: .95rem;
+    font-weight: 600;
+}
+
+.address__input::placeholder {
+    color: var(--text-muted);
+    font-weight: 500;
+    opacity: .7;
+}
+
+/* Адрес подтверждён — оранжевая галочка справа */
+.address__status {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    display: none;
+    place-items: center;
+}
+
+.address.is-ok .address__status,
+.address.is-loading .address__status { display: grid; }
+
+.address.is-ok .address__status::after {
+    content: '';
+    width: 12px;
+    height: 7px;
+    border: solid var(--accent);
+    border-width: 0 0 2.2px 2.2px;
+    transform: translateY(-2px) rotate(-45deg);
+}
+
+/* Ждём ответ 2GIS */
+.address.is-loading .address__status::after {
+    content: '';
+    width: 15px;
+    height: 15px;
+    border: 2px solid var(--control-border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: addressSpin .7s linear infinite;
+}
+
+@keyframes addressSpin {
+    to { transform: rotate(360deg); }
+}
+
+.address.is-ok .address__row { border-color: var(--accent); }
+
+.address.is-invalid .address__row {
+    border-color: var(--danger);
+    background: var(--danger-tint);
+}
+
+.address.is-invalid .address__pin { color: var(--danger); }
+
+.address.is-shake { animation: phoneShake .42s ease; }
+
+/*
+   ---------- Подсказки адресов ----------
+   Список в потоке, а не absolute. Форма живёт внутри .cart__scroll
+   с overflow-y: auto — всплывающий список этот контейнер бы обрезал.
+   Поэтому он раздвигает содержимое вниз: ничего не прячется.
+*/
+.address__list {
+    list-style: none;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height .3s cubic-bezier(.22, 1, .36, 1), opacity .25s ease, margin-top .3s ease;
+}
+
+.address.is-open .address__list {
+    max-height: 260px;
+    overflow-y: auto;
+    opacity: 1;
+    margin-top: 8px;
+    padding: 6px;
+    border-radius: 14px;
+    background: var(--dropdown-bg);
+    border: 1px solid var(--panel-border);
+}
+
+.address__option {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    padding: 11px 12px;
+    border-radius: 11px;
+    font-size: .86rem;
+    line-height: 1.4;
+    color: var(--text);
+    cursor: pointer;
+    transition: background-color .2s ease, color .2s ease;
+}
+
+.address__option:hover,
+.address__option.is-active {
+    background: var(--accent-tint);
+    color: var(--accent);
+}
+
+.address__option::before {
+    content: '';
+    flex-shrink: 0;
+    width: 6px;
+    height: 6px;
+    margin-top: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    opacity: .5;
+}
+
+.address__error {
+    margin-top: 8px;
+    font-size: .76rem;
+    font-weight: 600;
+    color: var(--danger);
+    animation: fadeIn .3s ease both;
+}
+
+.address__note {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 10px 0 18px;
+    font-size: .77rem;
+    line-height: 1.4;
+    color: var(--text-muted);
+}
+
+.address__note svg {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+    color: var(--accent);
+}
+
+/* ---------- Телефон ---------- */
+.phone {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 0 15px;
+    border-radius: 14px;
+    border: 1.5px solid var(--surface-border);
+    background: var(--control-bg);
+    transition: border-color .3s ease, background-color .3s ease, box-shadow .3s ease;
+}
+
+.phone:hover { border-color: var(--control-border); }
+
+.phone:focus-within {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+    box-shadow: 0 0 0 4px var(--accent-glow);
+}
+
+/* «+7» — постоянный префикс, его нельзя стереть */
+.phone__prefix {
+    flex-shrink: 0;
+    padding-right: 11px;
+    border-right: 1px solid var(--surface-border);
+    font-size: .95rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--text);
+    transition: color .3s ease, border-color .3s ease;
+}
+
+.phone:focus-within .phone__prefix { color: var(--accent); }
+
+.phone__input {
+    flex: 1;
+    min-width: 0;
+    padding: 14px 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: var(--text);
+    font-family: inherit;
+    font-size: .98rem;
+    font-weight: 600;
+    letter-spacing: .08em;
+    font-variant-numeric: tabular-nums;
+}
+
+.phone__input::placeholder {
+    color: var(--text-muted);
+    font-weight: 500;
+    opacity: .7;
+}
+
+/* Незаполненный номер при попытке оформить заказ */
+.phone.is-invalid {
+    border-color: var(--danger);
+    background: var(--danger-tint);
+}
+
+.phone.is-invalid .phone__prefix { color: var(--danger); }
+
+.phone.is-invalid:focus-within {
+    border-color: var(--danger);
+    box-shadow: 0 0 0 4px var(--danger-tint);
+}
+
+.phone.is-shake { animation: phoneShake .42s ease; }
+
+@keyframes phoneShake {
+    0%, 100% { transform: translateX(0); }
+    20%      { transform: translateX(-7px); }
+    40%      { transform: translateX(7px); }
+    60%      { transform: translateX(-4px); }
+    80%      { transform: translateX(4px); }
+}
+
+.phone__error {
+    margin-top: 8px;
+    font-size: .76rem;
+    font-weight: 600;
+    color: var(--danger);
+    animation: fadeIn .3s ease both;
+}
+
+/* Обещание перезвонить — под полем */
+.phone__note {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 10px 0 18px;
+    font-size: .77rem;
+    line-height: 1.4;
+    color: var(--text-muted);
+}
+
+.phone__note svg {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+    color: var(--accent);
+}
+
+/* ---------- Способы оплаты ---------- */
+/* Способов оплаты три — в строку они не помещаются подписями,
+   поэтому иконка над текстом, как у чипов категорий */
+.pay {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 18px;
+}
+
+.pay__option {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 13px 6px 11px;
+    border-radius: 15px;
+    border: 1.5px solid var(--surface-border);
+    background: var(--control-bg);
+    color: var(--text);
+    font-family: inherit;
+    cursor: pointer;
+    overflow: hidden;
+    transition: border-color .3s ease, background-color .3s ease,
+                transform .3s cubic-bezier(.22, 1, .36, 1), box-shadow .3s ease;
+}
+
+.pay__option:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+}
+
+.pay__option:active { transform: translateY(0) scale(.98); }
+
+.pay__option:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/* Выбранный способ */
+.pay__option[aria-checked="true"] {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+    box-shadow: 0 8px 22px var(--accent-glow);
+}
+
+.pay__logo {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    object-fit: contain;
+    display: block;
+    border-radius: 6px;
+}
+
+.pay__emoji {
+    font-size: 1.35rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.pay__name {
+    max-width: 100%;
+    font-size: .78rem;
+    font-weight: 700;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Галочка выбранного способа */
+.pay__mark {
+    position: absolute;
+    top: 6px;
+    right: 7px;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: var(--accent);
+
+    opacity: 0;
+    transform: scale(.3);
+    transition: opacity .3s ease, transform .35s cubic-bezier(.34, 1.56, .64, 1);
+}
+
+.pay__mark::after {
+    content: '';
+    position: absolute;
+    top: 3.5px;
+    left: 5px;
+    width: 4px;
+    height: 7px;
+    border: solid var(--btn-text);
+    border-width: 0 1.8px 1.8px 0;
+    transform: rotate(45deg);
+}
+
+.pay__option[aria-checked="true"] .pay__mark { opacity: 1; transform: scale(1); }
+
+/* ---------- Итоговые суммы ---------- */
+.totals {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    padding: 16px 0;
+    border-top: 1px solid var(--surface-border);
+}
+
+.totals__row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: .88rem;
+    color: var(--text-muted);
+}
+
+/* display: flex выше перебил бы атрибут hidden — возвращаем ему силу
+   (строка «Доставка» скрывается при самовывозе) */
+.totals__row[hidden] { display: none; }
+
+.totals__row dd { font-variant-numeric: tabular-nums; }
+
+/* Бесплатная доставка — акцентом */
+.totals__row dd.is-free {
+    color: var(--accent);
+    font-weight: 700;
+}
+
+.totals__row--final {
+    padding-top: 12px;
+    margin-top: 3px;
+    border-top: 1px solid var(--surface-border);
+    font-size: 1.12rem;
+    font-weight: 800;
+    color: var(--text);
+}
+
+.totals__row--final dd { color: var(--accent); }
+
+.cart__hint {
+    margin-bottom: 14px;
+    padding: 9px 13px;
+    border-radius: 11px;
+    border: 1px solid var(--accent-glow);
+    background: var(--accent-tint);
+    color: var(--accent);
+    font-size: .76rem;
+    font-weight: 600;
+    text-align: center;
+    animation: fadeIn .4s ease both;
+}
+
+/* ---------- Экран «заказ принят» ---------- */
+.cart__success {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px 30px;
+}
+
+/* display: flex выше перебил бы атрибут hidden — возвращаем его силу */
+.cart__success[hidden] { display: none; }
+
+.success__icon {
+    width: 88px;
+    height: 88px;
+    margin-bottom: 26px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    background: var(--accent-tint);
+    color: var(--accent);
+    box-shadow: 0 14px 40px var(--accent-glow);
+    animation: successPop .55s cubic-bezier(.34, 1.56, .64, 1) both;
+}
+
+.success__icon svg { width: 42px; height: 42px; display: block; }
+
+/* Галочка прорисовывается линией */
+.success__icon path {
+    stroke-dasharray: 32;
+    stroke-dashoffset: 32;
+    animation: successCheck .45s cubic-bezier(.22, 1, .36, 1) .28s forwards;
+}
+
+@keyframes successPop {
+    from { opacity: 0; transform: scale(.4); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes successCheck {
+    to { stroke-dashoffset: 0; }
+}
+
+.success__title {
+    font-size: 1.55rem;
+    font-weight: 800;
+    letter-spacing: -.01em;
+    margin-bottom: 12px;
+    animation: fadeIn .5s ease .18s both;
+}
+
+.success__text {
+    font-size: .95rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    animation: fadeIn .5s ease .28s both;
+}
+
+/* Номер, на который перезвонят */
+.success__text b {
+    display: block;
+    margin-top: 6px;
+    font-size: 1.12rem;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: .04em;
+    font-variant-numeric: tabular-nums;
+}
+
+.success__pay {
+    font-size: .8rem;
+    color: var(--text-muted);
+    margin-bottom: 30px;
+    animation: fadeIn .5s ease .36s both;
+}
+
+.success__btn {
+    width: 100%;
+    max-width: 290px;
+    padding: 16px 22px;
+    font-size: .86rem;
+    /* Перебиваем fadeUp из style.css — здесь нужна своя задержка */
+    animation: fadeIn .5s ease .46s both;
+}
+
+.success__btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 38px var(--accent-glow);
+}
+
+.success__btn:active { transform: translateY(0) scale(.98); }
+
+/* ---------- Кнопка оформления ---------- */
+.cart__checkout {
+    /* animation из style.css уже отыграла при загрузке — здесь только размеры */
+    font-size: .88rem;
+    padding: 16px 22px;
+}
+
+.cart__checkout:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 38px var(--accent-glow);
+}
+
+.cart__checkout:active { transform: translateY(0) scale(.98); }
+
+/* ============================================================
+   Адаптивность
+   ============================================================ */
+@media (max-width: 720px) {
+    .header__inner { padding: 11px 16px; gap: 10px; }
+    .menu-page     { padding: 0 16px; }
+
+    .logo__name    { font-size: 1.3rem; }
+
+    /* Кнопок в шапке пять — филиалу оставляем то, что осталось */
+    .header__brand { max-width: 42%; }
+    .branch__trigger { font-size: .6rem; letter-spacing: .08em; }
+    .branch__list  { min-width: 240px; }
+
+    .icon-btn      { width: 38px; height: 38px; }
+    .icon-btn svg  { width: 17px; height: 17px; }
+    .header__actions { gap: 7px; }
+
+    .section       { padding-top: 32px; }
+
+    .chip          { min-width: 92px; padding: 13px 14px 11px; font-size: .78rem; }
+    .chip__emoji   { font-size: 1.55rem; }
+
+    .dish-grid     { grid-template-columns: repeat(2, 1fr); gap: 20px 14px; }
+    .dish__emoji   { font-size: 2.4rem; }
+    .dish__name    { font-size: .9rem; }
+    .dish__price   { font-size: .86rem; }
+
+    .modal {
+        align-items: flex-end;
+        padding: 0;
+    }
+
+    .modal__content {
+        width: 100%;
+        max-width: none;
+        border-radius: 20px 20px 0 0;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .modal__body { padding: 24px 20px; }
+    .modal__title { font-size: 1.6rem; }
+    .modal__footer { flex-direction: column; }
+    .modal__price { font-size: 1.3rem; }
+
+    .site-foot        { margin-top: 44px; padding-top: 26px; }
+    .site-foot__inner { padding: 0 16px; gap: 18px; }
+    .site-foot__links { width: 100%; }
+    .contact          { flex: 1 1 100%; }
+
+    .toast         { left: 16px; right: 16px; bottom: 16px; transform: translateY(18px); text-align: center; }
+    .toast.is-visible { transform: translateY(0); }
+
+    /* Корзина — почти на весь экран, выезжает так же справа */
+    .cart__drawer {
+        width: 100%;
+        border-left: none;
+    }
+
+    .cart__head   { padding: 18px 18px 14px; }
+    .cart__title  { font-size: 1.3rem; }
+    .cart__scroll { padding: 14px 18px; }
+    .cart__foot   { padding: 16px 18px 20px; }
+
+    .cart-item          { gap: 11px; padding: 10px; }
+    .cart-item__media   { width: 58px; height: 58px; border-radius: 12px; }
+    .cart-item__name    { font-size: .88rem; }
+
+    .pay__option  { padding: 11px; gap: 7px; }
+    .pay__name    { font-size: .8rem; }
+
+    .totals__row--final { font-size: 1.05rem; }
+}
+
+/* Совсем узкие экраны — по два в ряд, третий переносится */
+@media (max-width: 360px) {
+    .pay  { grid-template-columns: 1fr 1fr; }
+    .mode { grid-template-columns: 1fr; }
+}
+
+/* Невысокие экраны: ужимаем низ панели, иначе список блюд схлопывается */
+@media (max-height: 720px) {
+    .cart__foot          { padding: 14px 18px 16px; }
+    .cart__section-title { margin-bottom: 8px; }
+    .phone__input        { padding: 12px 0; }
+    .phone__note         { margin: 8px 0 12px; }
+    .pay                 { margin-bottom: 12px; }
+    .totals              { gap: 6px; padding: 11px 0; }
+    .totals__row--final  { padding-top: 9px; margin-top: 0; }
+    .cart__hint          { margin-bottom: 10px; padding: 7px 12px; }
+    .cart__checkout      { padding: 14px 20px; }
+
+    .cart__success       { padding: 24px; }
+    .success__icon       { width: 70px; height: 70px; margin-bottom: 18px; }
+    .success__icon svg   { width: 34px; height: 34px; }
+    .success__title      { font-size: 1.35rem; }
+    .success__pay        { margin-bottom: 20px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+    }
+    .dish { opacity: 1; transform: none; }
+    .chip { opacity: 1; transform: none; }
+    /* Без анимации появления карточки корзины остались бы невидимыми */
+    .cart-item { opacity: 1; transform: none; }
+}

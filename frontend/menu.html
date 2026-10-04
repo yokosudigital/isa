@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISAstaurant — Меню</title>
+    <!-- style.css даёт переменные тем и @font-face; menu.css — стили этой страницы -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="menu.css">
+</head>
+<body class="menu-body">
+
+    <!-- ==================== Шапка ==================== -->
+    <header class="header" id="header">
+        <div class="header__inner">
+
+            <!-- Не .brand: этот класс занят в style.css названием ресторана
+                 на стартовой странице, и его background-clip: text красит
+                 градиентом весь вложенный текст -->
+            <div class="header__brand">
+                <a class="logo" href="index.html" aria-label="ISAstaurant — на главную">
+                    <span class="logo__name">ISAstaurant</span>
+                </a>
+
+                <!-- Переключатель филиала. Кнопка не может лежать внутри
+                     ссылки логотипа, поэтому они соседи, а не вложены. -->
+                <div class="branch" id="branchSwitch">
+                    <button type="button" class="branch__trigger" id="branchTrigger"
+                            aria-haspopup="listbox" aria-expanded="false"
+                            aria-controls="branchList"
+                            aria-label="Сменить филиал" data-i18n-aria="branchSwitchLabel">
+                        <span class="branch__value" id="headerBranch"></span>
+                        <svg class="branch__arrow" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <path d="M6 9.5l6 6 6-6" fill="none" stroke="currentColor"
+                                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+
+                    <ul class="branch__list" id="branchList" role="listbox"
+                        aria-label="Филиалы" data-i18n-aria="branchOptions"></ul>
+                </div>
+            </div>
+
+            <nav class="header__actions" aria-label="Действия">
+
+                <!-- Instagram -->
+                <a class="icon-btn"
+                   id="instagramLink"
+                   href="https://www.instagram.com/bubetaika/"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   aria-label="Instagram"
+                   data-i18n-aria="instagramLabel">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <rect x="3" y="3" width="18" height="18" rx="5"
+                              fill="none" stroke="currentColor" stroke-width="1.7"/>
+                        <circle cx="12" cy="12" r="4"
+                                fill="none" stroke="currentColor" stroke-width="1.7"/>
+                        <circle cx="17.2" cy="6.8" r="1.2" fill="currentColor"/>
+                    </svg>
+                </a>
+
+                <!-- WhatsApp: быстрый канал связи, поэтому в шапке -->
+                <a class="icon-btn icon-btn--wa"
+                   id="whatsappLink"
+                   href="https://wa.me/77074200599"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   aria-label="Написать в WhatsApp"
+                   data-i18n-aria="whatsappLabel">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M12.04 2.5a9.4 9.4 0 0 0-8.1 14.13L2.5 21.5l4.98-1.4A9.4 9.4 0 1 0 12.04 2.5z"
+                              fill="none" stroke="currentColor" stroke-width="1.7"
+                              stroke-linejoin="round"/>
+                        <path d="M8.9 7.6c.25-.03.5.02.68.42.2.45.66 1.57.72 1.68.06.12.1.26.02.42-.09.16-.13.26-.26.4-.13.14-.27.31-.39.42-.13.12-.26.25-.11.5.15.24.66 1.09 1.42 1.77.97.87 1.79 1.14 2.04 1.27.25.12.4.1.55-.06.15-.17.63-.74.8-1 .17-.25.34-.2.57-.12.23.08 1.46.69 1.71.82.25.12.42.19.48.29.06.1.06.58-.14 1.14-.2.56-1.17 1.1-1.62 1.14-.46.04-.88.2-2.96-.62-2.5-.98-4.06-3.54-4.18-3.7-.12-.17-.99-1.32-.99-2.52 0-1.2.63-1.79.85-2.03.22-.25.48-.31.64-.31z"
+                              fill="currentColor"/>
+                    </svg>
+                </a>
+
+                <!-- Тема -->
+                <button type="button"
+                        class="icon-btn toggle"
+                        id="themeToggle"
+                        aria-label="Сменить тему"
+                        data-i18n-aria="themeToggleLabel"
+                        aria-pressed="false">
+                    <span class="toggle__icon toggle__icon--sun" aria-hidden="true">☀</span>
+                    <span class="toggle__icon toggle__icon--moon" aria-hidden="true">☾</span>
+                </button>
+
+                <!-- Язык -->
+                <button type="button"
+                        class="icon-btn toggle"
+                        id="langToggle"
+                        aria-label="Сменить язык"
+                        data-i18n-aria="langToggleLabel">
+                    <span class="toggle__value" id="langToggleValue">RU</span>
+                </button>
+
+                <!-- Корзина -->
+                <button type="button"
+                        class="icon-btn icon-btn--cart"
+                        id="cartBtn"
+                        aria-label="Корзина"
+                        data-i18n-aria="cartLabel"
+                        aria-describedby="cartCountText">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M4 5h2.2l2.1 10.3a2 2 0 0 0 2 1.6h6.6a2 2 0 0 0 2-1.55L20.5 8H7"
+                              fill="none" stroke="currentColor" stroke-width="1.7"
+                              stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="10.5" cy="20" r="1.4" fill="currentColor"/>
+                        <circle cx="17" cy="20" r="1.4" fill="currentColor"/>
+                    </svg>
+                    <span class="cart-badge" id="cartBadge" aria-hidden="true">0</span>
+                </button>
+
+                <!-- Состояние корзины текстом — вне кнопки, иначе aria-label его перекроет -->
+                <span class="visually-hidden" id="cartCountText"></span>
+
+            </nav>
+        </div>
+    </header>
+
+    <main class="menu-page">
+
+        <!-- ==================== Категории ==================== -->
+        <section class="section section--categories" aria-labelledby="categoriesTitle">
+            <h1 class="section__title" id="categoriesTitle" data-i18n="categoriesTitle">Категории</h1>
+
+            <div class="chips" id="categoryChips" role="group"
+                 aria-label="Категории меню" data-i18n-aria="categoriesTitle"></div>
+        </section>
+
+        <!-- ==================== Блюда (генерируются в menu.js) ==================== -->
+        <div id="menuSections"></div>
+
+        <!-- Пустое состояние -->
+        <p class="empty" id="emptyState" hidden data-i18n="emptyState">
+            В этой категории пока нет блюд
+        </p>
+
+    </main>
+
+    <!-- ==================== Контакты ==================== -->
+    <footer class="site-foot">
+        <div class="site-foot__inner">
+            <div class="site-foot__col">
+                <h2 class="site-foot__title" data-i18n="supportTitle">Служба поддержки</h2>
+                <p class="site-foot__text" data-i18n="supportHint">
+                    Ответим на вопросы по заказу и доставке
+                </p>
+            </div>
+
+            <div class="site-foot__links">
+                <a class="contact" href="tel:+77074200599" id="supportPhone">
+                    <span class="contact__icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" focusable="false">
+                            <path d="M6.2 3.5h3l1.5 3.8-1.9 1.4a11 11 0 0 0 5.5 5.5l1.4-1.9 3.8 1.5v3a1.8 1.8 0 0 1-2 1.8A16.5 16.5 0 0 1 4.4 5.5a1.8 1.8 0 0 1 1.8-2z"
+                                  fill="none" stroke="currentColor" stroke-width="1.7"
+                                  stroke-linejoin="round"/>
+                        </svg>
+                    </span>
+                    <span class="contact__body">
+                        <span class="contact__label" data-i18n="supportPhoneLabel">Телефон</span>
+                        <span class="contact__value">+7 707 420 0599</span>
+                    </span>
+                </a>
+
+                <a class="contact contact--wa" href="https://wa.me/77074200599"
+                   target="_blank" rel="noopener noreferrer" id="supportWhatsapp">
+                    <span class="contact__icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" focusable="false">
+                            <path d="M12.04 2.5a9.4 9.4 0 0 0-8.1 14.13L2.5 21.5l4.98-1.4A9.4 9.4 0 1 0 12.04 2.5z"
+                                  fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                            <path d="M8.9 7.6c.25-.03.5.02.68.42.2.45.66 1.57.72 1.68.06.12.1.26.02.42-.09.16-.13.26-.26.4-.13.14-.27.31-.39.42-.13.12-.26.25-.11.5.15.24.66 1.09 1.42 1.77.97.87 1.79 1.14 2.04 1.27.25.12.4.1.55-.06.15-.17.63-.74.8-1 .17-.25.34-.2.57-.12.23.08 1.46.69 1.71.82.25.12.42.19.48.29.06.1.06.58-.14 1.14-.2.56-1.17 1.1-1.62 1.14-.46.04-.88.2-2.96-.62-2.5-.98-4.06-3.54-4.18-3.7-.12-.17-.99-1.32-.99-2.52 0-1.2.63-1.79.85-2.03.22-.25.48-.31.64-.31z"
+                                  fill="currentColor"/>
+                        </svg>
+                    </span>
+                    <span class="contact__body">
+                        <span class="contact__label">WhatsApp</span>
+                        <span class="contact__value">+7 707 420 0599</span>
+                    </span>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Модальное окно блюда -->
+    <div class="modal" id="dishModal" role="dialog" aria-modal="true" aria-labelledby="dishModalTitle">
+        <div class="modal__overlay" id="modalOverlay"></div>
+        <div class="modal__content">
+            <button type="button" class="modal__close" id="modalClose" aria-label="Закрыть">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2"
+                          stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                </svg>
+            </button>
+
+            <div class="modal__media" id="dishModalMedia"></div>
+
+            <div class="modal__body">
+                <h2 class="modal__title" id="dishModalTitle"></h2>
+                <p class="modal__weight" id="dishModalWeight"></p>
+
+                <section class="modal__section">
+                    <h3 class="modal__section-title" data-i18n="dishDescription">Описание</h3>
+                    <p class="modal__description" id="dishModalDescription"></p>
+                </section>
+
+                <section class="modal__section">
+                    <h3 class="modal__section-title" data-i18n="dishIngredients">Состав</h3>
+                    <p class="modal__ingredients" id="dishModalIngredients"></p>
+                </section>
+
+                <div class="modal__footer">
+                    <div class="modal__price" id="dishModalPrice"></div>
+                    <button type="button" class="btn-primary" id="dishModalAdd" data-i18n="addToCart">
+                        Добавить в корзину
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== Корзина ==================== -->
+    <div class="cart" id="cartPanel">
+        <div class="cart__overlay" id="cartOverlay"></div>
+
+        <aside class="cart__drawer" role="dialog" aria-modal="true" aria-labelledby="cartTitle">
+
+            <header class="cart__head">
+                <div>
+                    <h2 class="cart__title" id="cartTitle" data-i18n="cartTitle">Корзина</h2>
+                    <p class="cart__subcount" id="cartHeadCount"></p>
+                </div>
+
+                <button type="button" class="cart__close" id="cartClose"
+                        aria-label="Закрыть" data-i18n-aria="closeLabel">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2"
+                              stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                    </svg>
+                </button>
+            </header>
+
+            <!-- Список блюд (генерируется в menu.js) -->
+            <div class="cart__scroll" id="cartScroll">
+                <ul class="cart__list" id="cartList"></ul>
+
+                <div class="cart__empty" id="cartEmptyState">
+                    <span class="cart__empty-icon" aria-hidden="true">🛒</span>
+                    <p class="cart__empty-title" data-i18n="cartEmpty">Корзина пуста</p>
+                    <p class="cart__empty-hint" data-i18n="cartEmptyHint">Добавьте блюда из меню</p>
+                </div>
+
+                <!-- Форма заказа: карта, адрес, телефон, оплата.
+                     Живёт внутри прокрутки — иначе на телефоне список блюд
+                     схлопывается до нуля, а низ панели не помещается. -->
+                <div class="cart__form" id="cartForm">
+
+                    <h3 class="cart__section-title" id="modeTitle" data-i18n="cartMode">Способ получения</h3>
+
+                    <div class="mode" role="radiogroup" aria-labelledby="modeTitle">
+                        <button type="button" class="mode__option" id="modeDelivery"
+                                data-mode="delivery" role="radio" aria-checked="true">
+                            <span class="mode__emoji" aria-hidden="true">🛵</span>
+                            <span class="mode__name" data-i18n="modeDelivery">Доставка</span>
+                            <span class="mode__mark" aria-hidden="true"></span>
+                        </button>
+
+                        <button type="button" class="mode__option" id="modePickup"
+                                data-mode="pickup" role="radio" aria-checked="false">
+                            <span class="mode__emoji" aria-hidden="true">🏃</span>
+                            <span class="mode__name" data-i18n="modePickup">Самовывоз</span>
+                            <span class="mode__mark" aria-hidden="true"></span>
+                        </button>
+                    </div>
+
+                    <!-- Куда приезжать за заказом. Показываем только при самовывозе -->
+                    <div class="pickup" id="pickupInfo" hidden>
+                        <span class="pickup__icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" focusable="false">
+                                <path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11z"
+                                      fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                                <circle cx="12" cy="10" r="2.5" fill="none" stroke="currentColor" stroke-width="1.7"/>
+                            </svg>
+                        </span>
+                        <span class="pickup__body">
+                            <span class="pickup__label" data-i18n="pickupFrom">Забрать из филиала</span>
+                            <span class="pickup__branch" id="pickupBranch"></span>
+                        </span>
+                    </div>
+
+                    <!-- Всё, что ниже, нужно только для доставки -->
+                    <div class="delivery-fields" id="deliveryFields">
+
+                    <h3 class="cart__section-title" id="addressTitle" data-i18n="cartAddress">Адрес доставки</h3>
+
+                    <div class="address" id="addressField">
+                        <div class="address__row">
+                            <svg class="address__pin" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11z"
+                                      fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                                <circle cx="12" cy="10" r="2.5" fill="none" stroke="currentColor" stroke-width="1.7"/>
+                            </svg>
+
+                            <input type="text"
+                                   class="address__input"
+                                   id="addressInput"
+                                   role="combobox"
+                                   autocomplete="off"
+                                   aria-autocomplete="list"
+                                   aria-expanded="false"
+                                   aria-controls="addressList"
+                                   aria-labelledby="addressTitle"
+                                   aria-describedby="addressError addressNote"
+                                   placeholder="Улица и дом"
+                                   data-i18n-placeholder="addressPlaceholder">
+
+                            <span class="address__status" id="addressStatus" aria-hidden="true"></span>
+                        </div>
+
+                        <!-- Подсказки 2GIS. Открываются вверх: снизу кнопка заказа -->
+                        <ul class="address__list" id="addressList" role="listbox"
+                            aria-label="Варианты адреса" data-i18n-aria="addressOptions"></ul>
+                    </div>
+
+                    <p class="address__error" id="addressError" hidden role="alert"></p>
+
+                    <p class="address__note" id="addressNote">
+                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11z"
+                                  fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                            <circle cx="12" cy="10" r="2.4" fill="none" stroke="currentColor" stroke-width="1.8"/>
+                        </svg>
+                        <span data-i18n="addressNote">Доставляем только по городу Алматы</span>
+                    </p>
+
+                    <h3 class="cart__section-title" id="housingTitle" data-i18n="housingTitle">Тип дома</h3>
+
+                    <div class="housing" role="radiogroup" aria-labelledby="housingTitle">
+                        <button type="button" class="housing__option" id="housingPrivate"
+                                data-housing="private" role="radio" aria-checked="true">
+                            <span class="housing__emoji" aria-hidden="true">🏡</span>
+                            <span class="housing__name" data-i18n="housingPrivate">Частный дом</span>
+                            <span class="housing__mark" aria-hidden="true"></span>
+                        </button>
+
+                        <button type="button" class="housing__option" id="housingFlat"
+                                data-housing="flat" role="radio" aria-checked="false"
+                                aria-controls="flatFields">
+                            <span class="housing__emoji" aria-hidden="true">🏢</span>
+                            <span class="housing__name" data-i18n="housingFlat">Жилой дом</span>
+                            <span class="housing__mark" aria-hidden="true"></span>
+                        </button>
+                    </div>
+
+                    <!-- Квартира и подъезд — только для жилого дома -->
+                    <div class="flat" id="flatFields" hidden>
+                        <div class="flat__row">
+                            <label class="flat__cell">
+                                <span class="flat__label" data-i18n="flatLabel">Квартира</span>
+                                <input type="text" class="flat__input" id="flatInput"
+                                       inputmode="numeric" autocomplete="off" maxlength="6"
+                                       placeholder="12" aria-describedby="flatError">
+                            </label>
+
+                            <label class="flat__cell">
+                                <span class="flat__label" data-i18n="entranceLabel">Подъезд</span>
+                                <input type="text" class="flat__input" id="entranceInput"
+                                       inputmode="numeric" autocomplete="off" maxlength="4"
+                                       placeholder="—">
+                            </label>
+                        </div>
+
+                        <p class="flat__error" id="flatError" hidden role="alert"
+                           data-i18n="flatRequired">Укажите номер квартиры</p>
+
+                        <p class="flat__note" data-i18n="entranceNote">Подъезд можно не указывать</p>
+                    </div>
+
+                    </div><!-- /.delivery-fields -->
+
+                    <h3 class="cart__section-title" id="phoneTitle" data-i18n="cartPhone">Номер телефона</h3>
+
+                    <div class="phone" id="phoneField">
+                        <span class="phone__prefix" aria-hidden="true">+7</span>
+                        <input type="tel"
+                               class="phone__input"
+                               id="phoneInput"
+                               inputmode="numeric"
+                               autocomplete="tel-national"
+                               maxlength="13"
+                               placeholder="700 000 00 00"
+                               aria-labelledby="phoneTitle"
+                               aria-describedby="phoneError phoneNote">
+                    </div>
+
+                    <p class="phone__error" id="phoneError" hidden role="alert"
+                       data-i18n="phoneError">Введите все 10 цифр номера</p>
+
+                    <p class="phone__note" id="phoneNote">
+                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/>
+                            <path d="M12 7v5.4l3.2 2" fill="none" stroke="currentColor"
+                                  stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span data-i18n="phoneNote">Скоро свяжемся с вами для подтверждения заказа</span>
+                    </p>
+
+                    <h3 class="cart__section-title" id="payTitle" data-i18n="cartPayment">Способ оплаты</h3>
+
+                    <div class="pay" role="radiogroup" aria-labelledby="payTitle">
+                        <button type="button" class="pay__option" id="payKaspi"
+                                data-method="kaspi" role="radio" aria-checked="true">
+                            <img class="pay__logo" src="images/kaspi.png" alt="" aria-hidden="true">
+                            <span class="pay__name">Kaspi</span>
+                            <span class="pay__mark" aria-hidden="true"></span>
+                        </button>
+
+                        <button type="button" class="pay__option" id="payCard"
+                                data-method="card" role="radio" aria-checked="false">
+                            <span class="pay__emoji" aria-hidden="true">💳</span>
+                            <span class="pay__name" data-i18n="payCard">Картой</span>
+                            <span class="pay__mark" aria-hidden="true"></span>
+                        </button>
+
+                        <button type="button" class="pay__option" id="payCash"
+                                data-method="cash" role="radio" aria-checked="false">
+                            <span class="pay__emoji" aria-hidden="true">💵</span>
+                            <span class="pay__name" data-i18n="payCash">Наличные</span>
+                            <span class="pay__mark" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Экран после оформления заказа -->
+            <div class="cart__success" id="cartSuccess" hidden>
+                <div class="success__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false">
+                        <path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor"
+                              stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+
+                <h3 class="success__title" data-i18n="orderAccepted">Заказ принят</h3>
+                <p class="success__text" id="successText"></p>
+                <p class="success__pay" id="successPay"></p>
+
+                <button type="button" class="btn-primary success__btn" id="successClose"
+                        data-i18n="backToMenu">Вернуться в меню</button>
+            </div>
+
+            <!-- Итоги и кнопка — закреплены внизу, всегда на виду -->
+            <footer class="cart__foot" id="cartFoot">
+                <dl class="totals">
+                    <div class="totals__row">
+                        <dt data-i18n="cartSubtotal">Сумма заказа</dt>
+                        <dd id="cartSubtotal"></dd>
+                    </div>
+                    <!-- При самовывозе строку прячем: доставки нет -->
+                    <div class="totals__row" id="deliveryRow">
+                        <dt data-i18n="cartDelivery">Доставка</dt>
+                        <dd id="cartDelivery"></dd>
+                    </div>
+                    <div class="totals__row totals__row--final">
+                        <dt data-i18n="cartTotal">Итого</dt>
+                        <dd id="cartTotal"></dd>
+                    </div>
+                </dl>
+
+                <p class="cart__hint" id="cartHint" hidden></p>
+
+                <button type="button" class="btn-primary cart__checkout" id="checkoutBtn"
+                        data-i18n="checkout">Оформить заказ</button>
+            </footer>
+
+        </aside>
+    </div>
+
+    <!-- Уведомление о добавлении в корзину -->
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <!-- branches.js — общий справочник филиалов и контактов, грузится первым -->
+    <script src="branches.js"></script>
+    <script src="menu.js"></script>
+</body>
+</html>

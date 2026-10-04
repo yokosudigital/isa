@@ -1,0 +1,546 @@
+/* ============================================================
+   ISAstaurant — стартовая панель
+   ============================================================ */
+
+/* ---------- Шрифт названия ---------- */
+@font-face {
+    font-family: 'ISAstaurant';
+    src: url('fonts/shr1.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* ---------- Reset ---------- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* ============================================================
+   Темы (CSS variables)
+   ============================================================ */
+
+/* Dark — базовая тема: чёрный / оранжевый / белый */
+:root,
+[data-theme="dark"] {
+    --accent:            #ff7a1a;
+    --accent-soft:       #ff9a4d;
+    --accent-glow:       rgba(255, 122, 26, 0.35);
+    /* Лёгкая заливка — для выбранных карточек и подсказок, чтобы не «мутить» фон */
+    --accent-tint:       rgba(255, 122, 26, 0.12);
+
+    /* Ошибки ввода */
+    --danger:            #ff5b5e;
+    --danger-tint:       rgba(255, 91, 94, 0.12);
+
+    --bg:                #0b0b0c;
+    --panel-bg:          rgba(18, 18, 20, 0.72);
+    /* Непрозрачный — список перекрывает кнопку, она не должна просвечивать */
+    --dropdown-bg:       #1c1c1f;
+    --panel-border:      rgba(255, 255, 255, 0.10);
+    --panel-shadow:      0 30px 80px rgba(0, 0, 0, 0.55);
+
+    --text:              #ffffff;
+    --text-muted:        rgba(255, 255, 255, 0.62);
+
+    --control-bg:        rgba(255, 255, 255, 0.06);
+    --control-bg-hover:  rgba(255, 255, 255, 0.12);
+    --control-border:    rgba(255, 255, 255, 0.14);
+
+    /* Поверхности страницы меню */
+    --surface:           #141416;
+    --surface-hover:     #1b1b1e;
+    --surface-border:    rgba(255, 255, 255, 0.08);
+    --header-bg:         rgba(11, 11, 12, 0.82);
+    --media-bg:          linear-gradient(145deg, #1e1e22, #141416);
+
+    --overlay:           linear-gradient(160deg, rgba(0,0,0,0.72), rgba(0,0,0,0.86));
+    --btn-text:          #0b0b0c;
+}
+
+/* Light — белый / оранжевый / чёрный */
+[data-theme="light"] {
+    --accent:            #f2730a;
+    --accent-soft:       #ff9436;
+    --accent-glow:       rgba(242, 115, 10, 0.28);
+    --accent-tint:       rgba(242, 115, 10, 0.10);
+
+    --danger:            #d92b2e;
+    --danger-tint:       rgba(217, 43, 46, 0.10);
+
+    --bg:                #f4f1ec;
+    --panel-bg:          rgba(255, 255, 255, 0.80);
+    --dropdown-bg:       #ffffff;
+    --panel-border:      rgba(0, 0, 0, 0.08);
+    --panel-shadow:      0 30px 80px rgba(0, 0, 0, 0.20);
+
+    --text:              #111111;
+    --text-muted:        rgba(17, 17, 17, 0.58);
+
+    --control-bg:        rgba(0, 0, 0, 0.04);
+    --control-bg-hover:  rgba(0, 0, 0, 0.08);
+    --control-border:    rgba(0, 0, 0, 0.10);
+
+    /* Поверхности страницы меню */
+    --surface:           #ffffff;
+    --surface-hover:     #ffffff;
+    --surface-border:    rgba(0, 0, 0, 0.07);
+    --header-bg:         rgba(255, 255, 255, 0.86);
+    --media-bg:          linear-gradient(145deg, #f0ece5, #e6e1d8);
+
+    --overlay:           linear-gradient(160deg, rgba(255,255,255,0.68), rgba(255,255,255,0.84));
+    --btn-text:          #ffffff;
+}
+
+/* Плавная смена темы */
+body,
+.panel,
+.select__trigger,
+.select__list,
+.toggle,
+.btn-primary,
+.background__overlay {
+    transition:
+        background-color .45s ease,
+        background .45s ease,
+        color .45s ease,
+        border-color .45s ease,
+        box-shadow .45s ease;
+}
+
+/* ============================================================
+   Базовый layout
+   ============================================================ */
+body {
+    min-height: 100vh;
+    min-height: 100dvh;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+}
+
+/* ---------- Фон ---------- */
+.background {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+}
+
+.background__image {
+    position: absolute;
+    inset: -3%;
+    background-image: url('main.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    /* Лёгкий «дышащий» эффект фона */
+    animation: bgDrift 28s ease-in-out infinite alternate;
+    will-change: transform;
+}
+
+.background__overlay {
+    position: absolute;
+    inset: 0;
+    background: var(--overlay);
+}
+
+@keyframes bgDrift {
+    from { transform: scale(1.04) translate3d(0, 0, 0); }
+    to   { transform: scale(1.10) translate3d(0, -1.2%, 0); }
+}
+
+.page {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+/* ============================================================
+   Панель
+   ============================================================ */
+.panel {
+    position: relative;
+    width: 100%;
+    max-width: 450px;
+    padding: 32px 34px 38px;
+    border-radius: 26px;
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    box-shadow: var(--panel-shadow);
+    backdrop-filter: blur(22px) saturate(130%);
+    -webkit-backdrop-filter: blur(22px) saturate(130%);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+
+    animation: panelIn .9s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+@keyframes panelIn {
+    from { opacity: 0; transform: translateY(28px) scale(.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Появление внутренних блоков — каскадом */
+.panel__top,
+.panel__header,
+.field,
+.btn-primary {
+    animation: fadeUp .8s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+.panel__top      { animation-delay: .15s; }
+.panel__header   { animation-delay: .28s; }
+.field           { animation-delay: .42s; }
+.btn-primary     { animation-delay: .56s; }
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+   Переключатели (язык / тема)
+   ============================================================ */
+.panel__top {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+}
+
+.panel__controls {
+    display: flex;
+    gap: 10px;
+}
+
+.toggle {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    border: 1px solid var(--control-border);
+    background: var(--control-bg);
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    cursor: pointer;
+    overflow: hidden;
+    transition: transform .3s cubic-bezier(.22, 1, .36, 1),
+                background-color .3s ease,
+                border-color .3s ease,
+                box-shadow .3s ease;
+}
+
+.toggle:hover {
+    background: var(--control-bg-hover);
+    border-color: var(--accent);
+    transform: translateY(-2px);
+}
+
+.toggle:active { transform: scale(.92); }
+
+.toggle:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+}
+
+/* Анимация смены языка */
+.toggle__value {
+    display: inline-block;
+    transition: transform .35s cubic-bezier(.22, 1, .36, 1), opacity .35s ease;
+}
+
+.toggle.is-switching .toggle__value {
+    transform: translateY(-120%) rotate(-12deg);
+    opacity: 0;
+}
+
+/* Анимация смены темы: солнце / луна сменяют друг друга */
+.toggle__icon {
+    position: absolute;
+    font-size: 16px;
+    line-height: 1;
+    transition: transform .5s cubic-bezier(.22, 1, .36, 1), opacity .4s ease;
+}
+
+.toggle__icon--sun  { opacity: 0; transform: translateY(120%) rotate(90deg); }
+.toggle__icon--moon { opacity: 1; transform: translateY(0)    rotate(0deg); }
+
+[data-theme="light"] .toggle__icon--sun  { opacity: 1; transform: translateY(0)     rotate(0deg); }
+[data-theme="light"] .toggle__icon--moon { opacity: 0; transform: translateY(-120%) rotate(-90deg); }
+
+/* ============================================================
+   Название
+   ============================================================ */
+.panel__header {}
+
+.brand {
+    font-family: 'ISAstaurant', Georgia, 'Times New Roman', serif;
+    font-size: clamp(2.4rem, 9vw, 3.2rem);
+    font-weight: 400;
+    line-height: 1.05;
+    letter-spacing: .01em;
+    color: var(--text);
+    /* Оранжевый акцент на названии */
+    background: linear-gradient(105deg, var(--text) 0%, var(--accent) 55%, var(--accent-soft) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.brand__tagline {
+    margin-top: 10px;
+    font-size: .82rem;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+/* ============================================================
+   Поле «Выберите филиал»
+   ============================================================ */
+/* .field и .btn-primary — flex-элементы панели, и оба создают собственный
+   stacking context (animation: fadeUp с fill-mode both оставляет transform).
+   Поэтому z-index списка сравнивается не с кнопкой, а с этим контейнером:
+   поднимаем .field целиком — тогда весь его контент ложится поверх кнопки. */
+.field {
+    position: relative;
+    z-index: 10;
+    text-align: left;
+}
+
+.field__label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: .74rem;
+    font-weight: 600;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+/* ---------- Кастомный select ----------
+   Важно: никаких transform/filter/opacity на .select — они создали бы
+   stacking context и снова заперли бы список внутри поля. */
+.select {
+    position: relative;
+}
+
+.select__trigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 15px 18px;
+    border-radius: 16px;
+    border: 1px solid var(--control-border);
+    background: var(--control-bg);
+    color: var(--text);
+    font-size: .95rem;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color .3s ease, background-color .3s ease, box-shadow .3s ease;
+}
+
+.select__trigger:hover { border-color: var(--accent); }
+
+.select__trigger:focus-visible {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.select.is-open .select__trigger {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.select__value {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.select__value.is-placeholder { color: var(--text-muted); }
+
+.select__arrow {
+    flex-shrink: 0;
+    width: 9px;
+    height: 9px;
+    border-right: 2px solid var(--accent);
+    border-bottom: 2px solid var(--accent);
+    transform: rotate(45deg) translate(-2px, -2px);
+    transition: transform .35s cubic-bezier(.22, 1, .36, 1);
+}
+
+.select.is-open .select__arrow {
+    transform: rotate(225deg) translate(-2px, -2px);
+}
+
+/* Выпадающий список */
+.select__list {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    max-height: 280px;
+    overflow-y: auto;
+    list-style: none;
+    padding: 6px;
+    border-radius: 16px;
+    border: 1px solid var(--panel-border);
+    background: var(--dropdown-bg);
+    box-shadow: 0 18px 50px rgba(0, 0, 0, .45);
+
+    /* Плавное открытие */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px) scale(.98);
+    transform-origin: top center;
+    transition: opacity .28s ease,
+                transform .28s cubic-bezier(.22, 1, .36, 1),
+                visibility .28s,
+                background-color .45s ease,
+                border-color .45s ease;
+}
+
+/* Вариант: список открывается вверх, если недостаточно места */
+.select.is-open-above .select__list {
+    top: auto;
+    bottom: calc(100% + 8px);
+    transform-origin: bottom center;
+}
+
+.select.is-open .select__list,
+.select.is-open-above .select__list {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+}
+
+.select__option {
+    padding: 13px 14px;
+    border-radius: 11px;
+    font-size: .9rem;
+    line-height: 1.35;
+    color: var(--text);
+    cursor: pointer;
+    transition: background-color .22s ease, color .22s ease, padding-left .22s ease;
+}
+
+.select__option:hover,
+.select__option.is-active {
+    background: var(--control-bg-hover);
+    padding-left: 18px;
+}
+
+.select__option[aria-selected="true"] {
+    color: var(--accent);
+    font-weight: 600;
+}
+
+/* ============================================================
+   Кнопка «Продолжить»
+   ============================================================ */
+.btn-primary {
+    position: relative;
+    z-index: 0;          /* строго ниже .field, чтобы список ложился поверх */
+    width: 100%;
+    padding: 17px 24px;
+    border: none;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-soft));
+    color: var(--btn-text);
+    font-family: inherit;
+    font-size: .95rem;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    overflow: hidden;
+    box-shadow: 0 10px 30px var(--accent-glow);
+    transition: transform .35s cubic-bezier(.22, 1, .36, 1), box-shadow .35s ease, opacity .3s ease;
+}
+
+/* Блик, пробегающий по кнопке при наведении */
+.btn-primary::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -60%;
+    width: 45%;
+    height: 100%;
+    background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .45), transparent);
+    transform: skewX(-20deg);
+    transition: left .6s cubic-bezier(.22, 1, .36, 1);
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 40px var(--accent-glow);
+}
+
+.btn-primary:hover::after { left: 115%; }
+
+.btn-primary:active { transform: translateY(-1px) scale(.99); }
+
+.btn-primary:focus-visible {
+    outline: 2px solid var(--text);
+    outline-offset: 3px;
+}
+
+/* Нет выбранного филиала — кнопка приглушена, но кликабельна (даёт подсказку) */
+.btn-primary.is-idle { opacity: .55; box-shadow: none; }
+
+/* Подсветка поля, если филиал не выбран */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%      { transform: translateX(-6px); }
+    40%      { transform: translateX(6px); }
+    60%      { transform: translateX(-4px); }
+    80%      { transform: translateX(4px); }
+}
+
+.select.is-invalid { animation: shake .4s ease; }
+.select.is-invalid .select__trigger { border-color: var(--accent); }
+
+/* ============================================================
+   Адаптивность
+   ============================================================ */
+@media (max-width: 520px) {
+    .page   { padding: 18px; }
+    .panel  { padding: 28px 22px 32px; border-radius: 22px; gap: 20px; }
+    .brand__tagline  { font-size: .72rem; letter-spacing: .14em; }
+    .btn-primary     { padding: 16px 20px; }
+}
+
+@media (max-height: 620px) {
+    .panel__header { margin-bottom: 22px; }
+    .field         { margin-bottom: 18px; }
+}
+
+/* Уважение к системной настройке «меньше движения» */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+    }
+}
